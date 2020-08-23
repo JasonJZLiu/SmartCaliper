@@ -27,13 +27,11 @@ import bpy
 from . Custom_Operators import *
 from . Custom_Panels import *
 
-
 classes = (Add_Engineering_Annotation, 
         Load_Engineering_Annotations, 
         Save_Engineering_Annotation, 
         Measure,
         Eng_Anno_Panel)
-
 
 register, unregister = bpy.utils.register_classes_factory(classes)
 

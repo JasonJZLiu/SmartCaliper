@@ -3,7 +3,6 @@ from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ImportHelper 
 from bpy.types import Operator
 
-
 count = 0
 obj_file_path = ''
 
@@ -13,11 +12,12 @@ class Measure(bpy.types.Operator):
     bl_idname = 'measure.dist_verts'
     bl_label = 'Measure Distance'
     def execute(self, context):
+        #Must set it to Object mode in order to refresh the context.active_object
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.mode_set(mode='EDIT')
 
         selected_verts = [v for v in bpy.context.active_object.data.vertices if v.select]
-        #print(bpy.data.filepath)
+
         if len(selected_verts) != 2:
             self.report({'INFO'}, 'Measure Unsuccessful!  Please select 2  vertices')
         else:
@@ -29,8 +29,6 @@ class Measure(bpy.types.Operator):
             print(distance)
             self.report({'INFO'}, 'Measure Successful!')
         return {'FINISHED'}
-
-
 
 class Add_Engineering_Annotation(bpy.types.Operator):
     bl_idname = "add.engineering_annotation"
@@ -49,7 +47,7 @@ class Add_Engineering_Annotation(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='EDIT')
 
         selected_verts = [v for v in bpy.context.active_object.data.vertices if v.select]
-        #print(bpy.data.filepath)
+
         if len(selected_verts) != 2:
             self.report({'INFO'}, 'Measure Unsuccessful!  Please select 2  vertices')
         else:
@@ -60,7 +58,6 @@ class Add_Engineering_Annotation(bpy.types.Operator):
             print(distance)
             self.report({'INFO'}, 'Measure Successful!')
 
-
         selected_polygons = [f for f in bpy.context.active_object.data.polygons if f.select]
         if len(selected_polygons) != 2:
             self.report({'INFO'}, 'Measure Unsuccessful!  Please select 2  faces')
@@ -69,10 +66,10 @@ class Add_Engineering_Annotation(bpy.types.Operator):
             bpy.ops.object.mode_set(mode='EDIT')
             f1 = selected_polygons[0]
             f2 = selected_polygons[1]
+            #vertices corresponding to the centroid of the two faces
             v1 = [0.0, 0.0, 0.0]
             v2 = [0.0, 0.0, 0.0]
             for v in f1.vertices:
-                print(bpy.context.object.data.vertices[v].co[1])
                 v1[0] += bpy.context.object.data.vertices[v].co[0]
                 v1[1] += bpy.context.object.data.vertices[v].co[1]
                 v1[2] += bpy.context.object.data.vertices[v].co[2]
@@ -80,12 +77,11 @@ class Add_Engineering_Annotation(bpy.types.Operator):
                 v2[0] += bpy.context.object.data.vertices[v].co[0]
                 v2[1] += bpy.context.object.data.vertices[v].co[1]
                 v2[2] += bpy.context.object.data.vertices[v].co[2]
-            v1 = [c / len(f1.vertices) for c in v1]
+                
+            v1 = [c / len(f1.vertices) for c in v1] 
             v2 = [c / len(f2.vertices) for c in v2]
             distance = ((v1[0]-v2[0])**2+(v1[1]-v2[1])**2+(v1[2]-v2[2])**2)**.5
-            print(distance)
             self.report({'INFO'}, 'Measure Successful!')
-
 
         objs = [obj for obj in bpy.data.objects if obj.type in ["MESH", "CURVE"]]
         obj =objs[0]
@@ -96,19 +92,16 @@ class Add_Engineering_Annotation(bpy.types.Operator):
         
         if vertex_flag:
             name = "Annotation {} for V({},{},{}) and V({},{},{})".format(count, round(v1[0],1), round(v1[1],1), round(v1[2],1),round(v2[0],1), round(v2[1],1), round(v2[2],1))
-        elif face_flag:
+        elif face_flag: #TODO: Implement a concise naming convention so the actual faces values are saved in the name 
             name = "Annotation {} with Face Selection".format(count)
         else:
             name = "Annotation {} without Element Selection".format(count)
 
+        #Making sure to truncate if necessary because Blender restricts it to be less than 63 characters long 
         if len(name) > 62:
             name = name[:4]+name[10:]
             if len(name) > 62:
                 name = name[:63]
-
-        print(name)
-        print(len(name))
-
 
         obj[name] = 0
         default_value = 1
@@ -145,15 +138,11 @@ class Load_Engineering_Annotations(bpy.types.Operator):
         default='*.obj', 
         options={'HIDDEN'} 
     )
-
+    
     def execute(self, context):
         global obj_file_path
-
-        display = self.filepath  
-        print(display)
-        
+        display = self.filepath          
         file_loc = display
-        
         obj_file_path = display
 
         imported_object = bpy.ops.import_scene.obj(filepath=file_loc)
@@ -201,10 +190,6 @@ class Load_Engineering_Annotations(bpy.types.Operator):
         return {'RUNNING_MODAL'}  
         # Tells Blender to hang on for the slow user input
 
-
-
-
-
 class Save_Engineering_Annotation(bpy.types.Operator):
     bl_idname = "save.engineering_annotation"
     bl_label = "Save All Engineering Annotations"
@@ -223,40 +208,15 @@ class Save_Engineering_Annotation(bpy.types.Operator):
         temp_count = 0
     
         for key in list(rna_ui.keys()):
-
             key_list.append(key)
             description_list.append(rna_ui[key]['description'])
+            #not using default tab until the rounding issue is fixed by Blender
             #default_list.append(rna_ui[key]['default'])
             value_list.append(obj[key])
-
-            # print("Annotation Name:", key)
-            # print ("\t Property Value:", obj[key])
-            # print("\t Annotation Items", rna_ui[key].items())
             temp_count += 1
-        
-        print(key_list)
-        print(description_list)
-        print(default_list)
-        print(value_list)
-
-        
-        print(obj_file_path)
         write_annotations(obj_file_path, description_list, default_list, value_list, key_list)
 
         return {'FINISHED'}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def write_annotations(file_name, description_list, default_list, value_list, key_list):
     obj_file = open(file_name, 'r')
@@ -288,9 +248,6 @@ def write_annotations(file_name, description_list, default_list, value_list, key
         obj_file.write(line)
     obj_file.close()
 
-
-
-
 def load_annotations(file_name):
     obj_file = open(file_name, 'r')
     contents = obj_file.readlines()
@@ -310,7 +267,3 @@ def load_annotations(file_name):
                 key_list.append(line_str_list[2].strip())
     obj_file.close()
     return (description_list, default_list, value_list, key_list)
-
-
-
-

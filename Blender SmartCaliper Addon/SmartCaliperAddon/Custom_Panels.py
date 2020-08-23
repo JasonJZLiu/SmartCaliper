@@ -21,8 +21,6 @@ class Eng_Anno_Panel(bpy.types.Panel):
         row = layout.row()
         row.operator('add.engineering_annotation', text="Add")
 
-
-
         layout.label(text="Save All Engineering Annotations")
         row = layout.row()
         row.operator('save.engineering_annotation', text="Save")
