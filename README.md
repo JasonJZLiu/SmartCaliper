@@ -7,7 +7,7 @@ The second example is from working in the LIDAR division at the Uber Advanced Te
  
 Overall, the caliper industry has not pushed to innovate on their technologies, hence having no pressure from competitors. Ultimately, the goal of the SmartCaliper is to improve the workflow of calipers in the modern digital age and push manufacturers to innovate again. 
 
-##2. Market Application
+## 2. Market Application
 
 The caliper market has largely been able to avoid massive change for the past decade, which translates to limited compatibility with the digitally driven engineering workflow of today. If an engineer wants to directly log measurements from their caliper in a digital format, their only option is to hope they have an exposed data link connector and the required cable. They then need to wire this into their computer and use a clunky software that will allow them to log the measurements.
 
@@ -15,9 +15,9 @@ The smart caliper serves to offer a simple alternative that is low in cost for b
 
 Since this solution consists of very few simple parts, it would be easy to scale production and move to market with the technology seen in this hackathon. The end product would be very affordable for less than the price of most calipers due to the elegance of the design. 
 
-##3. Technical Summary
+## 3. Technical Summary
 
-##3.1 Hardware
+## 3.1 Hardware
 Almost every digital caliper on the market today has a connection port on the PCB that is used to stream measurement data to the computer over a special USB adapter cable. These cables are often upwards of $100 and strangely, most of those calipers do not even make the port available, opting to use it for conducting quality-control and calibration during production. 
  
 The first step of the project was to acquire a suitable caliper, we chose to use one we had on hand, which was the Neiko 01407A. This caliper proved to have a connection port tucked away under the body and required a Dremel to cut a slot for wires to be attached. These 3 wires were soldered to the caliper’s GND, Clock, and Data lines. This was then run to two transistors, which handled the 1.5v to 3.3v logic level conversion from the caliper to microcontroller respectively.
@@ -25,10 +25,10 @@ The first step of the project was to acquire a suitable caliper, we chose to use
 The microcontroller chosen was an ESP32 breakout module since it would allow for the high clock rate required to parse the data from the calipers and enable wireless data transfer. A pushbutton was also added to allow the user to choose when a measurement should be recorded without having to touch the computer.
 
 
-##3.2 Firmware
+## 3.2 Firmware
 Using an oscilloscope, the clock and data lines were probed to determine how the information was encoded. We discovered that every ~40ms, the caliper would send three bytes to the computer. Each bit was marked with the falling edge of the clock line. The first 16 bits were the measurement bits (LSB to MSB), followed by three high bits, then one bit to encode the sign, followed by four remaining high bits. An interrupt was used to detect the edge of the clock pulse and handle recording the values. An additional interrupt was used to detect the user button press and send the measurement via either serial or wirelessly, depending on how the system is configured. 
 
-##3.3 Software Package
+## 3.3 Software Package
 To maximize the potential of the SmartCaliper, we created a software package that focuses on enhancing the two main uses of a caliper:
 
 _Function 1:_ Measuring dimensions of a part for the purpose of creating its 3D model 
@@ -46,7 +46,7 @@ This program is accomplished using the multiprocessing module of Python as the s
 After a part is manufactured, it is common practice to use a caliper to measure the dimensions of that part to determine its tolerance and errors introduced during the manufacturing process. In order to determine the part’s tolerance, it is required to compare the manufactured part with its original 3D CAD model. To make this process faster and more intuitive, our software package includes a functionality that enables the user to input the measured dimensions and make any annotations directly onto the 3D CAD model. The user is able to view the original 3D CAD model in our software, then click on any two vertices/faces of the 3D model to generate a dimension the user wants to comment on. The software then stores any user-inputted comments, computes and logs the intended original dimension, and prompts the user to enter the part’s actual measured dimension. Similar to Function 1, the user simply needs to click one button on the SmartCaliper to transfer the measure dimension into the software without the need to type. The user can make as many of these annotations as they desire and all of that information is saved directly as comments in the 3D CAD model. By doing so, the user can use the software to load the 3D CAD model along with all of the saved annotations if the user wants to edit or append new annotations in the future. To accomplish this, we used Blender as the main viewport environment. This is because Blender is an open source CAD software that has a lot of documentation for custom AddOn development. Its native support of Python, through the Blender 2.83.0 Python API, allowed us to integrate the program developed in Function 1 into our codebase. The code contains three files: an initialization file, a panel class file, and an operator class file. The initialization file is responsible for instantiating instances of all the classes. The panel class file is responsible for the class definitions of all the custom GUI that our AddOn implements. The operator class file contains the functionality to actually execute all the desired actions (e.g. measuring the Euclidean distance between two selected vertices/faces, loading/saving annotations to the header of the .obj file, etc.).
 
 
-##4. Next Steps for  _SmartCaliper_
+## 4. Next Steps for  _SmartCaliper_
 There are numerous hardware and software improvements we have in mind for the next stage of this project.
 
 **4.1 Hardware:**
