@@ -3,7 +3,6 @@ import serial
 from pynput.keyboard import Key, Controller
 import multiprocessing
 
-
 def take_serial_type_measurement():
     try:
         esp32 = serial.Serial('COM5', 115200)
@@ -12,7 +11,6 @@ def take_serial_type_measurement():
             try:
                 measured_value = float(esp32.readline())/100
                 string_value = str(measured_value)
-                #print(str(measured_value))
                 for i in string_value:
                     keyboard.press(i)
                     keyboard.release(i)
@@ -21,15 +19,11 @@ def take_serial_type_measurement():
     except:
         print("Serial not found")
 
-
-
 def run_blender():
     subprocess.call(r'C:\Program Files\Blender Foundation\Blender\blender.exe')
 
 def run_solidworks():
     subprocess.call(r'C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\SLDWORKS.exe')
-
-
 
 if __name__ == "__main__":
     print("-----Welcome to Smart Caliper-----")
@@ -42,7 +36,6 @@ if __name__ == "__main__":
         if mode_select == "1" or mode_select == "2":
             flag = False
     
-
     if mode_select == "1":
         p1 = multiprocessing.Process(target=take_serial_type_measurement)
         p2 = multiprocessing.Process(target=run_solidworks)
